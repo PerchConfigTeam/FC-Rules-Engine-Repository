@@ -1044,11 +1044,16 @@ function runImpactCheck() {
       '</div>';
     }).join('');
 
-  document.querySelectorAll('.rule-card').forEach(function(c) { c.classList.remove('conflict-highlight'); });
-  conflicts.forEach(function(c) {
-    var card = document.querySelector('[data-id="' + c.rule._id + '"]');
-    if (card) card.classList.add('conflict-highlight');
-  });
+  var conflictIds = conflicts.map(function(c) { return c.rule._id; });
+document.querySelectorAll('.rule-card').forEach(function(c) {
+var id = c.getAttribute('data-id');
+if (conflictIds.indexOf(id) === -1) {
+c.style.display = 'none';
+} else {
+c.style.display = '';
+c.classList.add('conflict-highlight');
+}
+});
 }
 
 document.getElementById('businessSelector').addEventListener('change', function() {
