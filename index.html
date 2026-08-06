@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rules Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #8b5a2b;
+  --primary-light: #f5ebe0;
+  --primary-dark: #5c3a1a;
+  --surface-0: #faf8f5;
+  --surface-1: #f2eeea;
+  --surface-2: #ffffff;
+  --text-primary: #1a1612;
+  --text-secondary: #5c5550;
+  --text-tertiary: #8a8480;
+  --border: #e0dbd6;
+  --border-light: #ece8e3;
+  --success: #3d7a4a;
+  --success-bg: #e8f5eb;
+  --warning: #a06b1a;
+  --warning-bg: #fef3e0;
+  --danger: #a03030;
+  --danger-bg: #fde8e8;
+  --info: #2a5a8a;
+  --info-bg: #e5f0fa;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--surface-0);
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+.header {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+}
+
+.logo-mark svg { width: 18px; height: 18px; }
+
+.logo h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.logo span {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.business-selector {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  cursor: pointer;
+  min-width: 180px;
+  transition: all 150ms var(--ease-out);
+}
+
+.business-selector:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139,90,43,0.15);
+}
+
+.business-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 150ms var(--ease-out);
+  font-family: var(--font);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover { background: var(--primary-dark); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+.btn-ghost.active {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border-color: var(--primary);
+}
+
+.main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+}
+
+.main.checker-closed { grid-template-columns: 1fr; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-family: var(--font);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  transition: border-color 150ms var(--ease-out);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.search-box svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+}
+
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  transition: all 150ms var(--ease-out);
+}
+
+.pill:hover { border-color: var(--primary); color: var(--text-primary); }
+.pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.stats-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 14px 20px;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.stat { display: flex; align-items: baseline; gap: 6px; }
+.stat-value { font-size: 1.3rem; font-weight: 700; font-feature-settings: 'tnum'; }
+.stat-label { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.rules-list { display: flex; flex-direction: column; gap: 12px; }
+
+.rule-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: all 200ms var(--ease-out);
+  position: relative;
+}
+
+.rule-card:hover {
+  border-color: var(--border);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26,22,18,0.06);
+}
+
+.rule-card.expanded {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139,90,43,0.08);
+}
+
+.rule-card.conflict-highlight {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+}
+
+.rule-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.rule-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rule-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-active { background: var(--success-bg); color: var(--success); }
+.badge-inactive { background: var(--danger-bg); color: var(--danger); }
+.badge-event { background: var(--info-bg); color: var(--info); }
+.badge-priority { background: var(--warning-bg); color: var(--warning); }
+
+.rule-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.rule-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rule-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.rule-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  background: var(--surface-1);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.rule-detail {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.rule-card.expanded .rule-detail { display: block; }
+
+.rule-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.flow-section {
+  background: var(--surface-1);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.flow-section h4 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.flow-arrow {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  color: var(--text-tertiary);
+  font-size: 1.2rem;
+}
+
+.condition-item {
+  font-size: 0.75rem;
+  padding: 4px 0;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.condition-item:last-child { border-bottom: none; }
+
+.condition-path { font-weight: 600; color: var(--text-primary); font-family: monospace; font-size: 0.7rem; }
+.condition-op { color: var(--primary); font-weight: 500; }
+.condition-val { color: var(--info); font-weight: 500; }
+
+.action-item {
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+}
+
+.action-type {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+
+.checker-panel {
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.checker-panel h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.checker-panel > p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-family: var(--font);
+  background: var(--surface-0);
+  color: var(--text-primary);
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.conflict-results {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.conflict-results h3 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.conflict-count {
+  background: var(--warning);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.conflict-item {
+  padding: 10px 12px;
+  background: var(--warning-bg);
+  border: 1px solid rgba(160,107,26,0.3);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.conflict-item-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.conflict-item-reason {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.no-conflicts {
+  padding: 16px;
+  text-align: center;
+  color: var(--success);
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: var(--success-bg);
+  border-radius: var(--radius-sm);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-tertiary);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-state {
+  text-align: center;
+  padding: 32px;
+  background: var(--danger-bg);
+  border-radius: var(--radius-md);
+  color: var(--danger);
+}
+
+@media (max-width: 1024px) {
+  .main {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  .checker-panel {
+    position: static;
+    max-height: none;
+  }
+  .rule-flow {
+    grid-template-columns: 1fr;
+  }
+  .flow-arrow { display: none; }
+  .header-inner { flex-wrap: wrap; }
+}
+
+@media (max-width: 640px) {
+  .header { padding: 12px 16px; }
+  .toolbar { gap: 8px; }
+  .stats-bar { flex-wrap: wrap; gap: 16px; }
+  .header-center { order: 3; width: 100%; }
+  .business-selector { width: 100%; }
+}
+
+.checker-panel::-webkit-scrollbar { width: 4px; }
+.checker-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+        </svg>
+      </div>
+      <div>
+        <h1>FC Rules Engine</h1>
+        <span>Business Rule Documentation and Impact Analysis</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <select class="business-selector" id="businessSelector">
+        <option value="aci">ACI</option>
+        <option value="tmlegal">TM Legal</option>
+        <option value="verify">Verify</option>
+      </select>
+      <div class="business-indicator" id="statusIndicator" title="Connected"></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="toggleChecker">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Impact Checker
+      </button>
+      <label class="btn btn-ghost" for="fileUpload">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload Override
+      </label>
+      <input type="file" id="fileUpload" accept=".json" style="display:none">
+    </div>
+  </div>
+</header>
+
+<main class="main" id="mainLayout">
+  <div class="content-area">
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search rules by name, description, conditions, or actions...">
+      </div>
+    </div>
+
+    <div class="filter-pills" id="filterPills"></div>
+
+    <div class="stats-bar" id="statsBar">
+      <div class="stat"><span class="stat-value" id="totalRules">0</span><span class="stat-label">Total Rules</span></div>
+      <div class="stat"><span class="stat-value" id="activeRules">0</span><span class="stat-label">Active</span></div>
+      <div class="stat"><span class="stat-value" id="eventCount">0</span><span class="stat-label">Events</span></div>
+      <div class="stat"><span class="stat-value" id="tagCount">0</span><span class="stat-label">Tags</span></div>
+    </div>
+
+    <div class="rules-list" id="rulesList">
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading rules...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="checker-panel" id="checkerPanel">
+    <h2>Impact Checker</h2>
+    <p>Configure a new rule below to see which existing rules could be affected or conflict.</p>
+
+    <div class="form-group">
+      <label>Event</label>
+      <select id="checkerEvent">
+        <option value="">Select event...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Event Type</label>
+      <select id="checkerEventType">
+        <option value="">Select type...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Target Status (Action)</label>
+      <select id="checkerStatus">
+        <option value="">Select status...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Conditions (paths used)</label>
+      <textarea id="checkerConditions" placeholder="Enter condition paths, one per line. e.g.
+FCCORE_segment.segment
+CALCULATED_balance.balance
+isCard"></textarea>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%" onclick="runImpactCheck()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Check Impact
+    </button>
+
+    <div class="conflict-results" id="conflictResults" style="display:none"></div>
+  </div>
+</main>
+
+<script>
+var BUSINESSES = {
+  aci: { name: 'ACI', file: 'rules/aci.json' },
+  tmlegal: { name: 'TM Legal', file: 'rules/tmlegal.json' },
+  verify: { name: 'Verify', file: 'rules/verify.json' }
+};
+
+var rules = [];
+var currentBusiness = 'aci';
+var activeFilters = { event: null, tag: null, eventType: null };
+var checkerOpen = true;
+
+function loadBusiness(key) {
+  currentBusiness = key;
+  var config = BUSINESSES[key];
+  if (!config) return;
+
+  showLoading();
+  setIndicator('loading');
+
+  fetch(config.file + '?t=' + Date.now())
+    .then(function(response) {
+      if (!response.ok) throw new Error('File not found: ' + config.file);
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.rules && Array.isArray(data.rules)) {
+        rules = data.rules;
+      } else if (Array.isArray(data)) {
+        rules = data;
+      } else {
+        throw new Error('Invalid format');
+      }
+      activeFilters = { event: null, tag: null, eventType: null };
+      document.getElementById('searchInput').value = '';
+      init();
+      setIndicator('connected');
+    })
+    .catch(function(err) {
+      rules = [];
+      showError(config.name + ' rules file not found. Upload the JSON to: ' + config.file);
+      setIndicator('error');
+      updateStats();
+    });
+}
+
+function showLoading() {
+  document.getElementById('rulesList').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading rules...</p></div>';
+}
+
+function showError(msg) {
+  document.getElementById('rulesList').innerHTML = '<div class="error-state"><p style="font-size:0.9rem;font-weight:600;margin-bottom:6px">Could not load rules</p><p style="font-size:0.8rem">' + msg + '</p><p style="font-size:0.75rem;margin-top:12px;color:var(--text-secondary)">You can use "Upload Override" to load a file manually</p></div>';
+}
+
+function setIndicator(state) {
+  var el = document.getElementById('statusIndicator');
+  if (state === 'connected') { el.style.background = '#3d7a4a'; el.title = 'Connected'; }
+  else if (state === 'loading') { el.style.background = '#a06b1a'; el.title = 'Loading...'; }
+  else { el.style.background = '#a03030'; el.title = 'Error'; }
+}
+
+function init() {
+  updateStats();
+  renderFilters();
+  renderRules();
+  populateCheckerDropdowns();
+  document.getElementById('conflictResults').style.display = 'none';
+}
+
+function updateStats() {
+  document.getElementById('totalRules').textContent = rules.length;
+  document.getElementById('activeRules').textContent = rules.filter(function(r) { return r.active; }).length;
+  var events = getUniqueValues(rules.map(function(r) { return r.event; }));
+  document.getElementById('eventCount').textContent = events.length;
+  var tags = [];
+  rules.forEach(function(r) { (r.tags || []).forEach(function(t) { if (tags.indexOf(t) === -1) tags.push(t); }); });
+  document.getElementById('tagCount').textContent = tags.length;
+}
+
+function getUniqueValues(arr) {
+  var seen = {};
+  return arr.filter(function(item) {
+    if (seen[item]) return false;
+    seen[item] = true;
+    return true;
+  });
+}
+
+function renderFilters() {
+  var events = getUniqueValues(rules.map(function(r) { return r.event; }));
+  var tags = [];
+  rules.forEach(function(r) { (r.tags || []).forEach(function(t) { if (tags.indexOf(t) === -1) tags.push(t); }); });
+  var container = document.getElementById('filterPills');
+
+  if (rules.length === 0) { container.innerHTML = ''; return; }
+
+  var html = '<span style="font-size:0.72rem;color:var(--text-tertiary);font-weight:500;margin-right:4px">EVENTS:</span>';
+  events.forEach(function(e) {
+    var label = e.replace('FCCORE_', '');
+    html += '<span class="pill" data-filter="event" data-value="' + e + '">' + label + '</span>';
+  });
+
+  html += '<span style="font-size:0.72rem;color:var(--text-tertiary);font-weight:500;margin:0 4px 0 12px">TAGS:</span>';
+  tags.forEach(function(t) {
+    html += '<span class="pill" data-filter="tag" data-value="' + t + '">' + t + '</span>';
+  });
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var type = pill.dataset.filter;
+      var value = pill.dataset.value;
+      if (activeFilters[type] === value) {
+        activeFilters[type] = null;
+        pill.classList.remove('active');
+      } else {
+        container.querySelectorAll('[data-filter="' + type + '"]').forEach(function(p) { p.classList.remove('active'); });
+        activeFilters[type] = value;
+        pill.classList.add('active');
+      }
+      renderRules();
+    });
+  });
+}
+
+function renderRules() {
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var filtered = rules.filter(function(r) {
+    if (activeFilters.event && r.event !== activeFilters.event) return false;
+    if (activeFilters.tag && (r.tags || []).indexOf(activeFilters.tag) === -1) return false;
+    if (search) {
+      var searchable = [r.name, r.description, r.event].concat(r.tags || [])
+        .concat((r.conditions.all || []).map(function(c) { return c.path + ' ' + c.value; }))
+        .concat((r.actions || []).map(function(a) { return a.RE_Action + ' ' + (a.status || '') + ' ' + (a.reason || ''); }))
+        .join(' ').toLowerCase();
+      if (searchable.indexOf(search) === -1) return false;
+    }
+    return true;
+  });
+
+  var container = document.getElementById('rulesList');
+  if (rules.length === 0) return;
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-tertiary)">No rules match your filters</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(function(rule) {
+    return '<div class="rule-card" data-id="' + rule._id + '" onclick="toggleRule(this)">' +
+      '<div class="rule-header">' +
+        '<span class="rule-name">' + escHtml(rule.name) + '</span>' +
+        '<div class="rule-badges">' +
+          '<span class="badge badge-priority">P' + rule.priority + '</span>' +
+          '<span class="badge badge-event">' + escHtml(rule.event.replace('FCCORE_', '')) + '</span>' +
+          '<span class="badge ' + (rule.active ? 'badge-active' : 'badge-inactive') + '">' + (rule.active ? 'Active' : 'Inactive') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="rule-desc">' + escHtml(rule.description || '') + '</div>' +
+      '<div class="rule-meta">' +
+        '<div class="rule-meta-item">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
+          (rule.eventType || []).map(function(et) { return et.key; }).join(', ') +
+        '</div>' +
+        '<div class="rule-meta-item">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' +
+          (rule.conditions.all || []).length + ' conditions' +
+        '</div>' +
+        '<div class="rule-meta-item">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' +
+          (rule.actions || []).length + ' action' + ((rule.actions || []).length > 1 ? 's' : '') +
+        '</div>' +
+        '<div class="rule-tags">' + (rule.tags || []).map(function(t) { return '<span class="tag">' + escHtml(t) + '</span>'; }).join('') + '</div>' +
+      '</div>' +
+      '<div class="rule-detail">' + renderRuleDetail(rule) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function escHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderRuleDetail(rule) {
+  var allConds = rule.conditions.all || [];
+  var conditionsHtml = allConds.slice(0, 15).map(function(c) {
+    return '<div class="condition-item">' +
+      '<span class="condition-path">' + escHtml(c.path) + '</span>' +
+      '<span class="condition-op">' + formatOp(c.operator) + '</span>' +
+      '<span class="condition-val">' + escHtml(String(c.value)) + '</span>' +
+    '</div>';
+  }).join('');
+  if (allConds.length > 15) {
+    conditionsHtml += '<div class="condition-item" style="color:var(--text-tertiary);font-style:italic">+ ' + (allConds.length - 15) + ' more conditions</div>';
+  }
+
+  var actionsHtml = (rule.actions || []).map(function(a) {
+    var detail = '';
+    if (a.RE_Action === 'Status/Reason') {
+      detail = 'Set status to <strong>' + escHtml(a.status || '') + '</strong>, reason: <strong>' + escHtml(a.reason || '') + '</strong>';
+    } else if (a.RE_Action === 'EmailTemplate') {
+      detail = 'Send email template <code>' + escHtml(a.templateID || '') + '</code>';
+      if (a.templateStatus && a.templateStatus.length) detail += '<br>When: ' + a.templateStatus.join(', ');
+      if (a.templateIgnore && a.templateIgnore.length) detail += '<br>Skip: ' + a.templateIgnore.join(', ');
+    } else if (a.RE_Action === 'SMSTemplate') {
+      detail = 'Send SMS template <code>' + escHtml(a.templateID || '') + '</code>';
+      if (a.templateStatus && a.templateStatus.length) detail += '<br>When: ' + a.templateStatus.join(', ');
+    } else if (a.RE_Action === 'UpdateDashboard') {
+      detail = 'Update dashboard';
+    } else if (a.RE_Action === 'PhoneCall') {
+      detail = 'Trigger phone call';
+    } else {
+      detail = escHtml(a.RE_Action || JSON.stringify(a));
+    }
+    return '<div class="action-item"><div class="action-type">' + escHtml(a.RE_Action || 'Unknown') + '</div>' + detail + '</div>';
+  }).join('');
+
+  return '<div class="rule-flow">' +
+    '<div class="flow-section">' +
+      '<h4>Event Trigger</h4>' +
+      '<div style="font-size:0.82rem;font-weight:600;margin-bottom:4px">' + escHtml(rule.event) + '</div>' +
+      '<div style="font-size:0.75rem;color:var(--text-secondary)">Type: ' + (rule.eventType || []).map(function(e) { return e.key; }).join(', ') + '</div>' +
+      '<div style="font-size:0.75rem;color:var(--text-secondary)">Level: ' + (rule.eventLevel || 'N/A') + '</div>' +
+      '<div style="font-size:0.75rem;color:var(--text-secondary)">Logic: ' + (rule.logical || 'and').toUpperCase() + '</div>' +
+    '</div>' +
+    '<div class="flow-arrow">&rarr;</div>' +
+    '<div class="flow-section">' +
+      '<h4>Conditions (' + allConds.length + ')</h4>' +
+      conditionsHtml +
+    '</div>' +
+    '<div class="flow-arrow">&rarr;</div>' +
+    '<div class="flow-section">' +
+      '<h4>Actions (' + (rule.actions || []).length + ')</h4>' +
+      actionsHtml +
+    '</div>' +
+  '</div>';
+}
+
+function formatOp(op) {
+  var map = {
+    'equivalent': '===',
+    'equal': '==',
+    'notEqual': '!=',
+    'greaterThan': '>',
+    'lessThan': '<',
+    'notIncludes': 'not includes',
+    'includes': 'includes',
+    'greaterThanInclusive': '>=',
+    'lessThanInclusive': '<='
+  };
+  return map[op] || op;
+}
+
+function toggleRule(el) {
+  var wasExpanded = el.classList.contains('expanded');
+  document.querySelectorAll('.rule-card.expanded').forEach(function(c) { c.classList.remove('expanded'); });
+  if (!wasExpanded) el.classList.add('expanded');
+}
+
+function populateCheckerDropdowns() {
+  var events = getUniqueValues(rules.map(function(r) { return r.event; }));
+  var eventTypes = [];
+  rules.forEach(function(r) { (r.eventType || []).forEach(function(et) { if (eventTypes.indexOf(et.value) === -1) eventTypes.push(et.value); }); });
+  var statuses = [];
+  rules.forEach(function(r) { (r.actions || []).forEach(function(a) { if (a.status && statuses.indexOf(a.status) === -1) statuses.push(a.status); }); });
+
+  var eventSelect = document.getElementById('checkerEvent');
+  eventSelect.innerHTML = '<option value="">Select event...</option>';
+  events.forEach(function(e) { eventSelect.innerHTML += '<option value="' + e + '">' + e.replace('FCCORE_', '') + '</option>'; });
+
+  var typeSelect = document.getElementById('checkerEventType');
+  typeSelect.innerHTML = '<option value="">Select type...</option>';
+  eventTypes.forEach(function(t) { typeSelect.innerHTML += '<option value="' + t + '">' + t + '</option>'; });
+
+  var statusSelect = document.getElementById('checkerStatus');
+  statusSelect.innerHTML = '<option value="">Select status...</option>';
+  statuses.forEach(function(s) { statusSelect.innerHTML += '<option value="' + s + '">' + s + '</option>'; });
+}
+
+function runImpactCheck() {
+  var event = document.getElementById('checkerEvent').value;
+  var eventType = document.getElementById('checkerEventType').value;
+  var status = document.getElementById('checkerStatus').value;
+  var condPaths = document.getElementById('checkerConditions').value.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+
+  if (!event && !eventType && !status && condPaths.length === 0) {
+    alert('Please fill in at least one field to check for impacts.');
+    return;
+  }
+
+  var conflicts = [];
+
+  rules.forEach(function(rule) {
+    var reasons = [];
+
+    if (event && rule.event === event) {
+      reasons.push('Same event trigger: ' + event.replace('FCCORE_', ''));
+    }
+
+    if (eventType && (rule.eventType || []).some(function(et) { return et.value === eventType; })) {
+      reasons.push('Same event type: ' + eventType);
+    }
+
+    if (status) {
+      var ruleStatuses = (rule.actions || []).filter(function(a) { return a.status; }).map(function(a) { return a.status; });
+      if (ruleStatuses.indexOf(status) !== -1) {
+        reasons.push('Both set status to "' + status + '" (potential duplicate)');
+      }
+      if (event && rule.event === event && ruleStatuses.length > 0 && ruleStatuses.indexOf(status) === -1) {
+        reasons.push('Sets different status: "' + ruleStatuses.join(', ') + '" (potential override conflict)');
+      }
+    }
+
+    if (condPaths.length > 0) {
+      var rulePaths = (rule.conditions.all || []).map(function(c) { return c.path; });
+      var shared = condPaths.filter(function(p) { return rulePaths.indexOf(p) !== -1; });
+      if (shared.length > 0) {
+        reasons.push('Shared conditions: ' + shared.join(', '));
+      }
+    }
+
+    if (reasons.length > 0) {
+      conflicts.push({ rule: rule, reasons: reasons, score: reasons.length });
+    }
+  });
+
+  conflicts.sort(function(a, b) { return b.score - a.score; });
+
+  var resultsEl = document.getElementById('conflictResults');
+  resultsEl.style.display = 'block';
+
+  if (conflicts.length === 0) {
+    resultsEl.innerHTML = '<div class="no-conflicts">No potential conflicts found</div>';
+    document.querySelectorAll('.rule-card').forEach(function(c) { c.classList.remove('conflict-highlight'); });
+    return;
+  }
+
+  resultsEl.innerHTML = '<h3>Potential Impacts <span class="conflict-count">' + conflicts.length + '</span></h3>' +
+    conflicts.map(function(c) {
+      return '<div class="conflict-item">' +
+        '<div class="conflict-item-name">' + escHtml(c.rule.name) + '</div>' +
+        c.reasons.map(function(r) { return '<div class="conflict-item-reason">' + r + '</div>'; }).join('') +
+      '</div>';
+    }).join('');
+
+  document.querySelectorAll('.rule-card').forEach(function(c) { c.classList.remove('conflict-highlight'); });
+  conflicts.forEach(function(c) {
+    var card = document.querySelector('[data-id="' + c.rule._id + '"]');
+    if (card) card.classList.add('conflict-highlight');
+  });
+}
+
+document.getElementById('businessSelector').addEventListener('change', function() {
+  loadBusiness(this.value);
+});
+
+document.getElementById('toggleChecker').addEventListener('click', function() {
+  checkerOpen = !checkerOpen;
+  var panel = document.getElementById('checkerPanel');
+  var layout = document.getElementById('mainLayout');
+  panel.style.display = checkerOpen ? 'block' : 'none';
+  layout.classList.toggle('checker-closed', !checkerOpen);
+  this.classList.toggle('active', checkerOpen);
+});
+
+document.getElementById('searchInput').addEventListener('input', renderRules);
+
+document.getElementById('fileUpload').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var data = JSON.parse(ev.target.result);
+      if (data.rules && Array.isArray(data.rules)) {
+        rules = data.rules;
+      } else if (Array.isArray(data)) {
+        rules = data;
+      } else {
+        alert('Could not find rules array in JSON.');
+        return;
+      }
+      activeFilters = { event: null, tag: null, eventType: null };
+      init();
+      setIndicator('connected');
+    } catch (err) {
+      alert('Error parsing JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
+loadBusiness('aci');
+</script>
+</body>
+</html>
